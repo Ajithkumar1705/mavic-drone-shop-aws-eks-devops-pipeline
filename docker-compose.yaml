@@ -1,0 +1,167 @@
+services:
+
+  # ============================================================
+  # DATA TIER
+  # ============================================================
+
+  mongodb:
+    build:
+      context: ./mongo
+    image: mavicdroneshop/rs-mongodb:1.0
+    networks:
+      - mavic-drone-shop
+
+  mysql:
+    build:
+      context: ./mysql
+    image: mavicdroneshop/rs-mysql-db:1.0
+    volumes:
+      - mysql-data:/data
+    networks:
+      - mavic-drone-shop
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - mavic-drone-shop
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    networks:
+      - mavic-drone-shop
+
+
+  # ============================================================
+  # BACKEND SERVICES
+  # ============================================================
+
+  cart:
+    build:
+      context: ./cart
+    image: mavicdroneshop/rs-cart:1.0
+    environment:
+      REDIS_HOST: redis
+      CATALOGUE_HOST: catalogue
+    depends_on:
+      - redis
+      - catalogue
+    networks:
+      - mavic-drone-shop
+
+  catalogue:
+    build:
+      context: ./catalogue
+    image: mavicdroneshop/rs-catalogue:1.0
+    environment:
+      MONGO_URL: mongodb://mongodb:27017/catalogue
+    depends_on:
+      - mongodb
+    networks:
+      - mavic-drone-shop
+
+  user:
+    build:
+      context: ./user
+    image: mavicdroneshop/rs-user:1.0
+    environment:
+      MONGO_URL: mongodb://mongodb:27017/users
+      REDIS_HOST: redis
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - mavic-drone-shop
+
+  payment:
+    build:
+      context: ./payment
+    image: mavicdroneshop/rs-payment:1.0
+    environment:
+      CART_HOST: cart
+      USER_HOST: user
+      AMQP_HOST: rabbitmq
+    depends_on:
+      - cart
+      - user
+      - rabbitmq
+    networks:
+      - mavic-drone-shop
+
+  shipping:
+    build:
+      context: ./shipping
+    image: mavicdroneshop/rs-shipping:1.0
+    depends_on:
+      - cart
+      - mysql
+    networks:
+      - mavic-drone-shop
+
+  ratings:
+    build:
+      context: ./ratings
+    image: mavicdroneshop/rs-ratings:1.0
+    environment:
+      CATALOGUE_URL: http://catalogue:8080
+      PDO_URL: "mysql:host=mysql;dbname=ratings;charset=utf8mb4"
+    depends_on:
+      - catalogue
+      - mysql
+    networks:
+      - mavic-drone-shop
+
+  dispatch:
+    build:
+      context: ./dispatch
+    image: mavicdroneshop/rs-dispatch:1.0
+    environment:
+      AMQP_HOST: rabbitmq
+    depends_on:
+      - rabbitmq
+    networks:
+      - mavic-drone-shop
+
+
+  # ============================================================
+  # FRONTEND
+  # ============================================================
+
+  web:
+    build:
+      context: ./web
+    image: mavicdroneshop/rs-web:1.0
+    ports:
+      - "8080:8080"
+    environment:
+      CATALOGUE_HOST: catalogue
+      USER_HOST: user
+      CART_HOST: cart
+      SHIPPING_HOST: shipping
+      PAYMENT_HOST: payment
+      RATINGS_HOST: ratings
+    depends_on:
+      - catalogue
+      - user
+      - cart
+      - shipping
+      - payment
+      - ratings
+    networks:
+      - mavic-drone-shop
+
+
+# ============================================================
+# NETWORK
+# ============================================================
+
+networks:
+  mavic-drone-shop:
+    driver: bridge
+
+
+# ============================================================
+# VOLUMES
+# ============================================================
+
+volumes:
+  mysql-data:

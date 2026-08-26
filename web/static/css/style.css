@@ -1,0 +1,507 @@
+:root {
+    --bg-start: #0f0c29;
+    --bg-mid: #302b63;
+    --bg-end: #24243e;
+    --accent: #00e5ff;
+    --accent-soft: #7dd3fc;
+    --text: #eef2f7;
+    --card-bg: rgba(255, 255, 255, 0.06);
+    --card-border: rgba(0, 229, 255, 0.25);
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    width: 100%;
+}
+
+body {
+    background: radial-gradient(ellipse at center, var(--bg-mid) 0%, var(--bg-start) 60%, #05040d 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    height: auto;
+    line-height: 1.5;
+    position: relative;
+}
+
+#starfield {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    display: block;
+    pointer-events: none;
+}
+
+/* App content needs to sit above the fixed canvas.
+   Scoped to the app wrapper only (not a wildcard) so it doesn't
+   accidentally demote elements JS libraries inject directly into body,
+   like the shipping page's location autocomplete dropdown. */
+body > div[ng-controller="shopform"] {
+    position: relative;
+    z-index: 1;
+}
+
+/* Safety net: keep the autocomplete suggestion list above everything */
+.autocomplete-suggestions {
+    z-index: 99999 !important;
+}
+
+h1 {
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+}
+
+h1 a:link, h1 a:visited {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+h3 {
+    font-family: 'Orbitron', sans-serif;
+    margin: 5px;
+    font-size: 20px;
+}
+
+.nav h3 a:link, .nav h3 a:visited {
+    font-size: 20px;
+}
+
+h3 a:link, h3 a:visited {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.category {
+    font-size: 18px;
+    cursor: context-menu;
+    text-transform: capitalize;
+    font-weight: 600;
+}
+
+.carttotal {
+    margin-left: 25px;
+    font-size: 17px;
+}
+
+ul.products {
+    margin: 5px;
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+a.product:link, a.product:visited {
+    color: var(--accent-soft);
+    text-decoration: none;
+    font-size: 16px;
+}
+
+a.product:hover {
+    color: #fff;
+    text-decoration: none;
+}
+
+#search {
+    float: right;
+    position: relative;
+    top: -50px;
+}
+
+#search input[type="text"] {
+    font-size: 20px;
+    padding: 12px 16px;
+    width: 320px;
+    border-radius: 8px 0 0 8px;
+    border: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+}
+
+#search button {
+    font-size: 20px;
+    padding: 12px 24px;
+    border-radius: 0 8px 8px 0;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #05040d;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Layout: fluid, centered, wraps responsively instead of fixed pixel widths */
+.row, .column, .nav, .main {
+    margin: 0px;
+    box-sizing: border-box;
+}
+
+.row {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 0 20px;
+}
+
+.column {
+    float: none;
+    padding: 10px;
+}
+
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.nav {
+    flex: 1 1 220px;
+    max-width: 260px;
+}
+
+.main {
+    flex: 3 1 500px;
+    min-width: 0;
+}
+
+.footer {
+    font-size: 8pt;
+    text-align: center;
+    padding: 20px;
+    opacity: 0.7;
+}
+
+/* product details */
+.productimage {
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 5px;
+    margin: 10px 0;
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    background: var(--card-bg);
+}
+
+.description {
+    width: 100%;
+    max-width: 400px;
+    margin: 10px 0;
+}
+
+.productcart {
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    margin: 10px;
+    padding: 12px;
+    width: 100%;
+    max-width: 260px;
+    background: var(--card-bg);
+    backdrop-filter: blur(6px);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.productcart:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 229, 255, 0.15);
+}
+
+.rating {
+    margin: 10px 0;
+}
+
+.vote-star {
+    display: inline-block;
+    font-size: 32px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--accent);
+    opacity: 0.4;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.vote-star:hover {
+    transform: scale(1.15);
+}
+
+/* login register */
+table.credentials {
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 10px auto;
+    background: var(--card-bg);
+    backdrop-filter: blur(6px);
+}
+
+.message {
+    color: #ff6ec7;
+    font-weight: bold;
+    height: 30px;
+}
+
+.centre {
+    text-align: center;
+}
+
+/* cart */
+.currency {
+    text-align: right;
+}
+
+/* payment */
+a.cont:link, a.cont:visited {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a.cont:hover {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* splash */
+/* old graph.png background removed — .page-card handles the background now */
+
+/* Responsive breakpoints so it fits laptop, tablet, and mobile screens */
+@media (max-width: 900px) {
+    .row {
+        flex-direction: column;
+        padding: 0 16px;
+    }
+    .nav {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    #stan {
+        display: none;
+    }
+    ul.products {
+        justify-content: center;
+    }
+    .productcart, .productimage, .description {
+        max-width: 100%;
+    }
+}
+
+/* ===== Login / Register page ===== */
+.auth-wrapper {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 40px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    text-align: center;
+}
+
+.auth-card h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    color: var(--accent);
+    margin-bottom: 10px;
+}
+
+.auth-subtitle {
+    font-size: 16px;
+    opacity: 0.85;
+    margin-bottom: 28px;
+}
+
+.auth-choice-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.auth-btn {
+    font-size: 18px;
+    font-weight: 600;
+    padding: 14px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #05040d;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.auth-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 229, 255, 0.35);
+}
+
+.auth-btn-secondary {
+    background: transparent;
+    color: var(--accent);
+}
+
+.auth-card table.credentials {
+    width: 100%;
+    margin: 0 0 20px 0;
+    border: none;
+    background: transparent;
+    backdrop-filter: none;
+}
+
+.auth-card table.credentials td {
+    font-size: 17px;
+    padding: 10px 6px;
+    text-align: left;
+}
+
+.auth-card table.credentials input {
+    font-size: 16px;
+    padding: 8px 10px;
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+}
+
+.auth-card table.credentials button {
+    font-size: 17px;
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #05040d;
+    cursor: pointer;
+}
+
+.auth-card h2 + p.auth-subtitle {
+    margin-top: -4px;
+}
+
+.auth-switch, .auth-back {
+    font-size: 15px;
+    margin-top: 10px;
+}
+
+.auth-switch a, .auth-back a {
+    color: var(--accent-soft);
+    text-decoration: none;
+}
+
+.auth-switch a:hover, .auth-back a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+/* ===== General readability bump ===== */
+body {
+    font-size: 16px;
+}
+
+/* ===== Shared content card, used on cart/product/payment/search/shipping/splash ===== */
+.page-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 30px 35px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.page-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 24px;
+    color: var(--accent);
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.page-card table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px;
+}
+
+.page-card table th {
+    text-align: left;
+    color: var(--accent-soft);
+    font-weight: 600;
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.page-card table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.page-card button {
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px 22px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #05040d;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.page-card button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 229, 255, 0.3);
+}
+
+.page-card button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.page-card input[type="text"],
+.page-card input[type="number"],
+.page-card input[type="email"],
+.page-card input[type="password"],
+.page-card select {
+    font-size: 15px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+}
+
+.splash.page-card h2 {
+    font-size: 26px;
+}
+
+.splash.page-card p, .splash.page-card li {
+    font-size: 16px;
+    line-height: 1.7;
+}

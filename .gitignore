@@ -1,0 +1,71 @@
+# ===== Node.js (cart, catalogue, user) =====
+node_modules/
+npm-debug.log*
+package-lock.json.bak
+
+# ===== Python (payment, load-gen) =====
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# ===== Java / Maven (shipping) =====
+target/
+*.class
+*.jar
+!*/pom.xml
+
+# ===== Go (dispatch) =====
+# go.mod and go.sum are generated at build time for this service (see HANDOFF.md) —
+# ignore them here since they're not committed as pinned dependency files
+go.mod
+go.sum
+*.exe
+*.exe~
+*.test
+
+# ===== PHP / Composer (ratings) =====
+vendor/
+composer.lock
+
+# ===== Docker =====
+*.pid
+
+# ===== Terraform =====
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+crash.*.log
+
+# ===== Secrets / environment =====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ===== OS files =====
+.DS_Store
+Thumbs.db
+
+# ===== Editor / IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===== Logs =====
+*.log
+logs/
+
+# ===== Misc build artifacts =====
+dist/
+build/
+*.tmp
+

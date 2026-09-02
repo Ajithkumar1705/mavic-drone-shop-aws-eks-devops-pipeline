@@ -1,0 +1,51 @@
+name: cd
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Service to deploy'
+        required: true
+        type: choice
+        options:
+          - cart
+          - catalogue
+          - user
+          - payment
+          - shipping
+          - ratings
+          - dispatch
+          - web
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+
+      - name: Deploy via Helm
+        run: |
+          helm upgrade --install ${{ github.event.inputs.service }} ./EKS/helm \
+            -f ./EKS/helm/values-dev.yaml \
+            --set image.repo=${{ steps.login-ecr.outputs.registry }} \
+            --set image.version=${{ github.sha }} \
+            --namespace mavic-drone-shop \
+            --create-namespace

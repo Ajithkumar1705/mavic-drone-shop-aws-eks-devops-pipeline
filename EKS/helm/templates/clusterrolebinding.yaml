@@ -1,0 +1,14 @@
+{{ if .Values.psp.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mavic-drone-shop
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mavic-drone-shop
+subjects:
+- kind: ServiceAccount
+  name: mavic-drone-shop
+  namespace: mavic-drone-shop
+{{ end }}

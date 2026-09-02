@@ -1,0 +1,15 @@
+{{ if .Values.psp.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mavic-drone-shop
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - mavic-drone-shop
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+{{ end }}

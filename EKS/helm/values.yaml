@@ -1,0 +1,57 @@
+# Registry and repository for Docker images
+# Default is docker/mavicdroneshop/image:latest
+image:
+  repo: mavicdroneshop
+  version: latest
+  pullPolicy: IfNotPresent
+
+# Pod Security Policy
+psp:
+  enabled: false
+
+# For the mini ones minikube, minishift set to true
+nodeport: false
+
+# "special" Openshift. Set to true when deploying to any openshift flavour
+openshift: false
+
+ocCreateRoute: false
+
+######################################
+# Affinities for individual workloads
+# set in the following way:
+# <workload>:
+#   affinity: {}
+#   nodeSelector: {}
+#   tolerations: []
+######################################
+
+cart: {}
+
+catalogue: {}
+
+dispatch: {}
+
+mongodb: {}
+
+mysql: {}
+
+payment:
+  # Alternative payment gateway URL
+  # Default is https://www.paypal.com
+  gateway: null
+  #gateway: https://www.worldpay.com
+
+rabbitmq: {}
+
+ratings: {}
+
+redis:
+  # Storage class to use with redis statefulset.
+  storageClassName: gp2
+
+shipping: {}
+
+user: {}
+
+web: {}

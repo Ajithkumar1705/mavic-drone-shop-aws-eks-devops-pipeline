@@ -63,7 +63,7 @@ variable "services" {
   type        = list(string)
   default = [
     "web", "cart", "catalogue", "user", "payment",
-    "shipping", "ratings", "dispatch", "mongodb", "mysql-db"
+    "shipping", "ratings", "dispatch", "mongo", "mysql"
   ]
 }
 

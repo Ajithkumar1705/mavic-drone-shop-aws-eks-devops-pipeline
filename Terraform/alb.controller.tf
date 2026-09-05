@@ -5,27 +5,6 @@
 # ALB when EKS/helm/ingress.yaml is applied. Without this file, ingress.yaml
 # sits inert — nothing in the cluster acts on Ingress resources by default.
 
-# ---------------------------------------------------------------------------
-# Providers needed beyond what's already in providers.tf.
-# Terraform merges required_providers blocks across files automatically.
-# ---------------------------------------------------------------------------
-terraform {
-  required_providers {
-    http = {
-      source  = "hashicorp/http"
-      version = "~> 3.0"
-    }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "~> 2.30"
-    }
-    helm = {
-      source  = "hashicorp/helm"
-      version = "~> 2.13"
-    }
-  }
-}
-
 # Authenticates the kubernetes/helm providers below against the cluster
 # eks.tf already created.
 data "aws_eks_cluster_auth" "this" {

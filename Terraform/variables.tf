@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "environment" {
   description = "Environment name, used in tags and resource naming"
   type        = string
-  default     = "prod"
+  default     = "dev"
 }
 
 variable "cluster_name" {
@@ -63,7 +63,7 @@ variable "services" {
   type        = list(string)
   default = [
     "web", "cart", "catalogue", "user", "payment",
-    "shipping", "ratings", "dispatch", "mongo", "mysql"
+    "shipping", "ratings", "dispatch", "mongodb", "mysql-db"
   ]
 }
 
@@ -71,4 +71,10 @@ variable "github_repo" {
   description = "GitHub repo allowed to assume the CI/CD IAM role, in 'owner/repo' format"
   type        = string
   default     = "Ajithkumar1705/mavic-drone-shop-aws-eks-devops-pipeline"
+}
+
+variable "grafana_admin_password" {
+  description = "Admin password for Grafana. Set via terraform.tfvars (gitignored) or TF_VAR_grafana_admin_password env var — never commit a real value."
+  type        = string
+  sensitive   = true
 }

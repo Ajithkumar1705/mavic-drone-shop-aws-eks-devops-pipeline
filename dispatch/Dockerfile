@@ -1,4 +1,4 @@
-FROM golang:1.24 AS build
+FROM golang:1.25 AS build
 
 WORKDIR /go/src/app
 
@@ -12,5 +12,7 @@ FROM debian:12-slim
 WORKDIR /app
 
 COPY --from=build /go/bin/dispatch /app/dispatch
+
+EXPOSE 2112
 
 CMD ["./dispatch"]

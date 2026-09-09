@@ -1,18 +1,18 @@
-const instana = require('@instana/collector');
-// init tracing
-// MUST be done before loading anything else!
-instana({
-    tracing: {
-        enabled: true
-    }
-});
-
 const mongoClient = require('mongodb').MongoClient;
 const mongoObjectID = require('mongodb').ObjectID;
 const redis = require('redis');
 const bodyParser = require('body-parser');
 const express = require('express');
 const pino = require('pino');
+// Prometheus
+const promClient = require('prom-client');
+const Registry = promClient.Registry;
+const register = new Registry();
+const loginCounter = new promClient.Counter({
+    name: 'user_logins',
+    help: 'running count of successful logins',
+    registers: [register]
+});
 const expPino = require('express-pino-logger');
 
 // MongoDB
@@ -41,20 +41,6 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use((req, res, next) => {
-    let dcs = [
-        "asia-northeast2",
-        "asia-south1",
-        "europe-west3",
-        "us-east1",
-        "us-west1"
-    ];
-    let span = instana.currentSpan();
-    span.annotate('custom.sdk.tags.datacenter', dcs[Math.floor(Math.random() * dcs.length)]);
-
-    next();
-});
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -64,6 +50,12 @@ app.get('/health', (req, res) => {
         mongo: mongoConnected
     };
     res.json(stat);
+});
+
+// Prometheus
+app.get('/metrics', (req, res) => {
+    res.header('Content-Type', 'text/plain');
+    res.send(register.metrics());
 });
 
 // use REDIS INCR to track anonymous users
@@ -127,6 +119,7 @@ app.post('/login', (req, res) => {
             req.log.info('user', user);
             if(user) {
                 if(user.password == req.body.password) {
+                    loginCounter.inc();
                     res.json(user);
                 } else {
                     res.status(404).send('incorrect password');

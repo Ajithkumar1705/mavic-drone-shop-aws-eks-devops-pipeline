@@ -1,4 +1,4 @@
-package com.instana.robotshop.shipping;
+package com.mavicdroneshop.shipping;
 
 /**
  * Bean to hold shipping information

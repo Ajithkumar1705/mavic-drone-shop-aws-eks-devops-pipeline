@@ -19,7 +19,7 @@ spec:
       {{ end }}
       containers:
       - name: web
-        image: {{ .Values.image.repo }}/rs-web:{{ .Values.image.version }}
+        image: {{ .Values.image.repo }}/rs-web:{{ .Values.web.image.version | default .Values.image.version }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 8080
@@ -30,6 +30,24 @@ spec:
           requests:
             cpu: 100m
             memory: 50Mi
+      # Prometheus sidecar: nginx itself can't run application code, so this
+      # translates the existing /nginx_status (stub_status) endpoint —
+      # already enabled in default.conf.template — into Prometheus format.
+      # Reaches the web container via localhost since sidecars in the same
+      # pod share a network namespace.
+      - name: nginx-exporter
+        image: nginx/nginx-prometheus-exporter:1.3
+        args:
+        - "-nginx.scrape-uri=http://localhost:8080/nginx_status"
+        ports:
+        - containerPort: 9113
+        resources:
+          limits:
+            cpu: 50m
+            memory: 32Mi
+          requests:
+            cpu: 25m
+            memory: 16Mi
       restartPolicy: Always
       {{- with .Values.web.affinity }}
       affinity:

@@ -5,7 +5,7 @@
 # This exists to demonstrate the actual point of Helm: the SAME chart
 # deploys differently per environment without duplicating templates.
 # A values-prod.yaml would set these higher (more replicas, real
-# resource limits, a real Instana/monitoring key) once a "prod" tier
+# resource limits, a real Grafana admin password or alert webhook) once a "prod" tier
 # of this project exists.
 
 image:

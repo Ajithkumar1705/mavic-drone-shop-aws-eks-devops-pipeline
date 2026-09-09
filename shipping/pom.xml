@@ -8,7 +8,7 @@
 		<version>2.3.3.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.instana</groupId>
+	<groupId>com.mavicdroneshop</groupId>
 	<artifactId>shipping</artifactId>
 	<version>1.0</version>
 	<name>shipping service</name>
@@ -36,11 +36,11 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-		<dependency>
-			<groupId>com.instana</groupId>
-			<artifactId>instana-java-sdk</artifactId>
-			<version>1.2.0</version>
-		</dependency>
+        <!-- Exposes /actuator/prometheus once combined with the actuator above -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
 
 		<dependency>
 			<groupId>mysql</groupId>

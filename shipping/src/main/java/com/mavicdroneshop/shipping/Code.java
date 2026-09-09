@@ -1,4 +1,4 @@
-package com.instana.robotshop.shipping;
+package com.mavicdroneshop.shipping;
 
 import javax.persistence.Table;
 import javax.persistence.Entity;

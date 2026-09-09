@@ -1,4 +1,4 @@
-package com.instana.robotshop.shipping;
+package com.mavicdroneshop.shipping;
 
 import java.util.List;
 import java.util.Arrays;

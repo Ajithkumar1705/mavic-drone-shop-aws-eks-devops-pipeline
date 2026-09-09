@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: dispatch
+  labels:
+    service: dispatch
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      service: dispatch
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s

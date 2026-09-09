@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cart
+  labels:
+    service: cart
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      service: cart
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s

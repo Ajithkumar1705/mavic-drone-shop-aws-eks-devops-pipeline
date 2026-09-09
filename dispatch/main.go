@@ -1,39 +1,31 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
-	"math/rand"
+	"net/http"
 	"os"
-	"strconv"
 	"time"
 
-	"github.com/instana/go-sensor"
-	ot "github.com/opentracing/opentracing-go"
-	"github.com/opentracing/opentracing-go/ext"
-	otlog "github.com/opentracing/opentracing-go/log"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-const (
-	Service = "dispatch"
-)
+// Prometheus — dispatch has no HTTP server otherwise, so one is added
+// purely to serve /metrics. promauto registers this counter with the
+// default global registry automatically.
+var ordersProcessed = promauto.NewCounter(prometheus.CounterOpts{
+	Name: "orders_processed",
+	Help: "running count of orders processed by dispatch",
+})
 
 var (
 	amqpUri          string
 	rabbitChan       *amqp.Channel
 	rabbitCloseError chan *amqp.Error
 	rabbitReady      chan bool
-	errorPercent     int
-
-	dataCenters = []string{
-		"asia-northeast2",
-		"asia-south1",
-		"europe-west3",
-		"us-east1",
-		"us-west1",
-	}
 )
 
 func connectToRabbitMQ(uri string) *amqp.Connection {
@@ -91,89 +83,7 @@ func failOnError(err error, msg string) {
 	}
 }
 
-func getOrderId(order []byte) string {
-	id := "unknown"
-	var f interface{}
-	err := json.Unmarshal(order, &f)
-	if err == nil {
-		m := f.(map[string]interface{})
-		id = m["orderid"].(string)
-	}
-
-	return id
-}
-
-func createSpan(headers map[string]interface{}, order string) {
-	// headers is map[string]interface{}
-	// carrier is map[string]string
-	carrier := make(ot.TextMapCarrier)
-	// convert by copying k, v
-	for k, v := range headers {
-		carrier[k] = v.(string)
-	}
-
-	// get the order id
-	log.Printf("order %s\n", order)
-
-	// opentracing
-	var span ot.Span
-	tracer := ot.GlobalTracer()
-	spanContext, err := tracer.Extract(ot.HTTPHeaders, carrier)
-	if err == nil {
-		log.Println("Creating child span")
-		// create child span
-		span = tracer.StartSpan("getOrder", ot.ChildOf(spanContext))
-
-		fakeDataCenter := dataCenters[rand.Intn(len(dataCenters))]
-		span.SetTag("datacenter", fakeDataCenter)
-	} else {
-		log.Println(err)
-		log.Println("Failed to get context from headers")
-		log.Println("Creating root span")
-		// create root span
-		span = tracer.StartSpan("getOrder")
-	}
-
-	span.SetTag(string(ext.SpanKind), ext.SpanKindConsumerEnum)
-	span.SetTag(string(ext.MessageBusDestination), "mavic-drone-shop")
-	span.SetTag("exchange", "mavic-drone-shop")
-	span.SetTag("sort", "consume")
-	span.SetTag("address", "rabbitmq")
-	span.SetTag("key", "orders")
-	span.LogFields(otlog.String("orderid", order))
-	defer span.Finish()
-
-	time.Sleep(time.Duration(42+rand.Int63n(42)) * time.Millisecond)
-	if rand.Intn(100) < errorPercent {
-		span.SetTag("error", true)
-		span.LogFields(
-			otlog.String("error.kind", "Exception"),
-			otlog.String("message", "Failed to dispatch to SOP"))
-		log.Println("Span tagged with error")
-	}
-
-	processSale(span)
-}
-
-func processSale(parentSpan ot.Span) {
-	tracer := ot.GlobalTracer()
-	span := tracer.StartSpan("processSale", ot.ChildOf(parentSpan.Context()))
-	defer span.Finish()
-	span.SetTag(string(ext.SpanKind), "intermediate")
-	span.LogFields(otlog.String("info", "Order sent for processing"))
-	time.Sleep(time.Duration(42+rand.Int63n(42)) * time.Millisecond)
-}
-
 func main() {
-	rand.Seed(time.Now().Unix())
-
-	// Instana tracing
-	ot.InitGlobalTracer(instana.NewTracerWithOptions(&instana.Options{
-		Service:           Service,
-		LogLevel:          instana.Info,
-		EnableAutoProfile: true,
-	}))
-
 	// Init amqpUri
 	// get host from environment
 	amqpHost, ok := os.LookupEnv("AMQP_HOST")
@@ -181,23 +91,6 @@ func main() {
 		amqpHost = "rabbitmq"
 	}
 	amqpUri = fmt.Sprintf("amqp://guest:guest@%s:5672/", amqpHost)
-
-	// get error threshold from environment
-	errorPercent = 0
-	epct, ok := os.LookupEnv("DISPATCH_ERROR_PERCENT")
-	if ok {
-		epcti, err := strconv.Atoi(epct)
-		if err == nil {
-			if epcti > 100 {
-				epcti = 100
-			}
-			if epcti < 0 {
-				epcti = 0
-			}
-			errorPercent = epcti
-		}
-	}
-	log.Printf("Error Percent is %d\n", errorPercent)
 
 	// MQ error channel
 	rabbitCloseError = make(chan *amqp.Error)
@@ -222,10 +115,18 @@ func main() {
 			for d := range msgs {
 				log.Printf("Order %s\n", d.Body)
 				log.Printf("Headers %v\n", d.Headers)
-				id := getOrderId(d.Body)
-				go createSpan(d.Headers, id)
+				ordersProcessed.Inc()
 			}
 		}
+	}()
+
+	// Prometheus metrics server — separate from the app's actual work,
+	// runs on its own port since dispatch otherwise never listens on
+	// anything (it's a pure background worker).
+	go func() {
+		http.Handle("/metrics", promhttp.Handler())
+		log.Println("Serving /metrics on :2112")
+		log.Println(http.ListenAndServe(":2112", nil))
 	}()
 
 	log.Println("Waiting for messages")

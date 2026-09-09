@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace MavicDroneShop\Ratings\Controller;
+namespace Instana\RobotShop\Ratings\Controller;
 
-use MavicDroneShop\Ratings\Service\CatalogueService;
-use MavicDroneShop\Ratings\Service\RatingsService;
+use Instana\RobotShop\Ratings\Service\CatalogueService;
+use Instana\RobotShop\Ratings\Service\RatingsService;
 use Prometheus\CollectorRegistry;
 use Prometheus\Storage\APC;
 use Psr\Log\LoggerAwareInterface;

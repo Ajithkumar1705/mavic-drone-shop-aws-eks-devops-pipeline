@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Instana\RobotShop\Ratings\Service;
+namespace MavicDroneShop\Ratings\Service;
 
 use PDO;
 use Psr\Log\LoggerAwareInterface;

@@ -1,18 +1,18 @@
-const instana = require('@instana/collector');
-// init tracing
-// MUST be done before loading anything else!
-instana({
-    tracing: {
-        enabled: true
-    }
-});
-
 const mongoClient = require('mongodb').MongoClient;
 const mongoObjectID = require('mongodb').ObjectID;
 const bodyParser = require('body-parser');
 const express = require('express');
 const pino = require('pino');
 const expPino = require('express-pino-logger');
+// Prometheus
+const promClient = require('prom-client');
+const Registry = promClient.Registry;
+const register = new Registry();
+const productViewCounter = new promClient.Counter({
+    name: 'product_views',
+    help: 'running count of product detail views',
+    registers: [register]
+});
 
 const logger = pino({
     level: 'info',
@@ -38,20 +38,6 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use((req, res, next) => {
-    let dcs = [
-        "asia-northeast2",
-        "asia-south1",
-        "europe-west3",
-        "us-east1",
-        "us-west1"
-    ];
-    let span = instana.currentSpan();
-    span.annotate('custom.sdk.tags.datacenter', dcs[Math.floor(Math.random() * dcs.length)]);
-
-    next();
-});
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -61,6 +47,12 @@ app.get('/health', (req, res) => {
         mongo: mongoConnected
     };
     res.json(stat);
+});
+
+// Prometheus
+app.get('/metrics', (req, res) => {
+    res.header('Content-Type', 'text/plain');
+    res.send(register.metrics());
 });
 
 // all products
@@ -87,6 +79,7 @@ app.get('/product/:sku', (req, res) => {
         collection.findOne({sku: req.params.sku}).then((product) => {
             req.log.info('product', product);
             if(product) {
+                productViewCounter.inc();
                 res.json(product);
             } else {
                 res.status(404).send('SKU not found');

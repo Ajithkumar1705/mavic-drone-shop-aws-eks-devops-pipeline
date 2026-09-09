@@ -1,16 +1,43 @@
-# dispatch just listens to a message queue
-# it does not expose any ports
-apiVersion: v1
-kind: Service
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: dispatch
   labels:
     service: dispatch
 spec:
-  clusterIP: None
-  ports:
-  - name: headless
-    port: 55555
-    targetPort: 0
+  replicas: 1
   selector:
-    service: dispatch
+    matchLabels:
+      service: dispatch
+  template:
+    metadata:
+      labels:
+        service: dispatch
+    spec:
+      {{ if .Values.psp.enabled }}
+      serviceAccountName: mavic-drone-shop
+      {{ end }}
+      containers:
+      - name: dispatch
+        image: {{ .Values.image.repo }}/rs-dispatch:{{ .Values.dispatch.image.version | default .Values.image.version }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        resources:
+          limits:
+            cpu: 200m
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 50Mi
+      restartPolicy: Always
+      {{- with .Values.dispatch.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dispatch.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dispatch.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

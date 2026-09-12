@@ -26,17 +26,21 @@ ocCreateRoute: false
 #   tolerations: []
 ######################################
 
-cart: {}
+cart:
+  image: {}
 
-catalogue: {}
+catalogue:
+  image: {}
 
-dispatch: {}
+dispatch:
+  image: {}
 
 mongodb: {}
 
 mysql: {}
 
 payment:
+  image: {}
   # Alternative payment gateway URL
   # Default is https://www.paypal.com
   gateway: null
@@ -44,14 +48,18 @@ payment:
 
 rabbitmq: {}
 
-ratings: {}
+ratings:
+  image: {}
 
 redis:
   # Storage class to use with redis statefulset.
   storageClassName: gp2
 
-shipping: {}
+shipping:
+  image: {}
 
-user: {}
+user:
+  image: {}
 
-web: {}
+web:
+  image: {}

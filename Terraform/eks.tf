@@ -19,7 +19,9 @@ module "eks" {
   # classic aws-auth ConfigMap approach, for flexibility.
   authentication_mode = "API_AND_CONFIG_MAP"
 
-#to reach from my laptop - should not be in production
+  # Makes the cluster API endpoint reachable from your laptop for kubectl,
+  # not just from inside the VPC. Fine for a dev/portfolio cluster;
+  # a real production setup would typically restrict this further.
   cluster_endpoint_public_access = true
 
   enable_irsa = true

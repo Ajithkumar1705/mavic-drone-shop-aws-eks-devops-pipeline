@@ -17,7 +17,7 @@ module "vpc" {
   public_subnets  = [for i, az in var.availability_zones : cidrsubnet(var.vpc_cidr, 8, i + 10)]
 
   enable_nat_gateway = true
-  single_nat_gateway = true # one shared NAT gateway, not one per AZ — keeps cost down for a portfolio setup
+  single_nat_gateway = true # one shared NAT gateway, not one per AZ — keeps cost down for a dev/portfolio setup
 
   enable_dns_hostnames = true
   enable_dns_support   = true

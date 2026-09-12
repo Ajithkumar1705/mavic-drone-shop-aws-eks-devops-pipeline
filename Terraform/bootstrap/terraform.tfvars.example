@@ -1,0 +1,15 @@
+aws_region      = "ap-south-1"
+environment     = "dev"
+cluster_name    = "mavic-drone-shop-eks"
+cluster_version = "1.30"
+
+vpc_cidr           = "10.0.0.0/16"
+availability_zones = ["ap-south-1a", "ap-south-1b"]
+
+node_instance_type = "t3.medium"
+node_desired_size  = 2
+node_min_size      = 1
+node_max_size      = 3
+
+github_repo = "Ajithkumar1705/mavic-drone-shop-aws-eks-devops-pipeline"
+grafana_admin_password = "changeme-pick-your-own"

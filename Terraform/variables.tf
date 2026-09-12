@@ -72,3 +72,8 @@ variable "github_repo" {
   type        = string
   default     = "Ajithkumar1705/mavic-drone-shop-aws-eks-devops-pipeline"
 }
+variable "grafana_admin_password" {
+  description = "Password for the Grafana admin user"
+  type        = string
+  default     = "grafana@123"
+}

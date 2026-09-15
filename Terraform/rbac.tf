@@ -1,9 +1,3 @@
-resource "kubernetes_namespace" "app" {
-  metadata {
-    name = "mavic-drone-shop"
-  }
-}
-
 resource "kubernetes_role" "servicemonitor_manager" {
   metadata {
     name      = "servicemonitor-manager"

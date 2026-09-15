@@ -43,8 +43,8 @@ jobs:
 
       - name: Deploy via Helm
         run: |
-          helm upgrade --install ${{ github.event.inputs.service }} ./EKS/helm \
+          helm upgrade --install mavic-drone-shop ./EKS/helm \
             -f ./EKS/helm/values-dev.yaml \
             --set image.repo=${{ steps.login-ecr.outputs.registry }} \
-            --set image.version=${{ github.sha }} \
+            --set ${{ github.event.inputs.service }}.image.version=${{ github.sha }} \
             --namespace mavic-drone-shop

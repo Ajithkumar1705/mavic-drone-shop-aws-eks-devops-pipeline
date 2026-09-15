@@ -37,7 +37,7 @@ resource "aws_iam_role" "github_actions_deploy" {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
           }
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:ref:refs/heads/main"
+            "token.actions.githubusercontent.com:sub" = "repo:Ajithkumar1705@290228427/mavic-drone-shop-aws-eks-devops-pipeline@1346890326:ref:refs/heads/main"
           }
         }
       }
@@ -99,6 +99,7 @@ resource "aws_iam_role_policy" "eks_describe" {
 resource "aws_eks_access_entry" "github_actions" {
   cluster_name  = module.eks.cluster_name
   principal_arn = aws_iam_role.github_actions_deploy.arn
+  kubernetes_groups = ["github-actions-deploy"]
 }
 
 resource "aws_eks_access_policy_association" "github_actions" {
@@ -107,6 +108,9 @@ resource "aws_eks_access_policy_association" "github_actions" {
   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
 
   access_scope {
-    type = "cluster"
+    type       = "namespace"
+    namespaces = ["mavic-drone-shop"]
   }
+
+  depends_on = [kubernetes_namespace.app]
 }

@@ -19,9 +19,15 @@ module "eks" {
   # classic aws-auth ConfigMap approach, for flexibility.
   authentication_mode = "API_AND_CONFIG_MAP"
 
-  # Makes the cluster API endpoint reachable from your laptop for kubectl,
-  # not just from inside the VPC. Fine for a dev/portfolio cluster;
-  # a real production setup would typically restrict this further.
+  # Without this, the identity running Terraform has AWS-level permission
+  # to manage the cluster, but no Kubernetes-level RBAC access to its API —
+  # under the newer access-entry auth model, cluster creation no longer
+  # automatically grants this the way the older aws-auth-only model did.
+  # This is what was causing the persistent "Unauthorized" errors on
+  # kubernetes_service_account and kubernetes_namespace.
+  enable_cluster_creator_admin_permissions = true
+
+#to reach from my laptop - should not be in production
   cluster_endpoint_public_access = true
 
   enable_irsa = true
@@ -34,4 +40,11 @@ module "eks" {
       max_size       = var.node_max_size
     }
   }
+}
+resource "kubernetes_namespace" "app" {
+  metadata {
+    name = "mavic-drone-shop"
+  }
+
+  depends_on = [module.eks]
 }

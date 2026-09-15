@@ -19,7 +19,7 @@ variable "cluster_name" {
 variable "cluster_version" {
   description = "Kubernetes version for the EKS control plane"
   type        = string
-  default     = "1.30"
+  default     = "1.35"
 }
 
 variable "vpc_cidr" {
@@ -37,7 +37,7 @@ variable "availability_zones" {
 variable "node_instance_type" {
   description = "EC2 instance type for EKS worker nodes"
   type        = string
-  default     = "t3.medium"
+  default     = "t3.small"
 }
 
 variable "node_desired_size" {

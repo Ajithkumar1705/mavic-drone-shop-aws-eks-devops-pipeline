@@ -47,5 +47,4 @@ jobs:
             -f ./EKS/helm/values-dev.yaml \
             --set image.repo=${{ steps.login-ecr.outputs.registry }} \
             --set image.version=${{ github.sha }} \
-            --namespace mavic-drone-shop \
-            --create-namespace
+            --namespace mavic-drone-shop

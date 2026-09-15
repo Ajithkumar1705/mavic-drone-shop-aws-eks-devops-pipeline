@@ -8,7 +8,11 @@
 # --ignore-platform-reqs, which masks genuine incompatibilities too.
 FROM php:7.4-cli AS vendor
 
-RUN apt-get update -o Acquire::Check-Valid-Until=false && apt-get install -y --no-install-recommends unzip && rm -rf /var/lib/apt/lists/*
+# bullseye has aged out of the live Debian mirrors — deb.debian.org and
+# security.debian.org only serve current releases, so any package version
+# still pinned to bullseye 404s. Repoint apt at the permanent archive.
+RUN sed -i 's|deb.debian.org|archive.debian.org|g; s|security.debian.org|archive.debian.org|g' /etc/apt/sources.list \
+    && apt-get update -o Acquire::Check-Valid-Until=false && apt-get install -y --no-install-recommends unzip && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -34,7 +38,8 @@ RUN docker-php-ext-install pdo pdo_mysql
 # source, fetched directly from GitHub, sidesteps PECL entirely. The exact
 # release tag is resolved dynamically via GitHub's API rather than
 # hardcoded, so this can't go stale the way a pinned version could.
-RUN apt-get update -o Acquire::Check-Valid-Until=false && \
+RUN sed -i 's|deb.debian.org|archive.debian.org|g; s|security.debian.org|archive.debian.org|g' /etc/apt/sources.list && \
+    apt-get update -o Acquire::Check-Valid-Until=false && \
     apt-get install -y --no-install-recommends $PHPIZE_DEPS curl ca-certificates \
     && LATEST_TAG=$(curl -s https://api.github.com/repos/krakjoe/apcu/releases/latest | grep '"tag_name"' | cut -d '"' -f4) \
     && curl -sSL "https://github.com/krakjoe/apcu/archive/refs/tags/${LATEST_TAG}.tar.gz" | tar xz \

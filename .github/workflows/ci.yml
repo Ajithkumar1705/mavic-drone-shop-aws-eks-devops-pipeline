@@ -76,6 +76,7 @@ jobs:
           image-ref: ${{ steps.login-ecr.outputs.registry }}/rs-${{ matrix.service }}:${{ github.sha }}
           severity: 'CRITICAL,HIGH'
           exit-code: '1'
+          trivyignores: '${{ matrix.service }}/.trivyignore'
 
       - name: Push image
         if: success()

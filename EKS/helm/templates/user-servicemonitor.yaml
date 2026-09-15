@@ -1,13 +1,15 @@
-apiVersion: v1
-kind: Service
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
 metadata:
   name: user
   labels:
     service: user
+    release: monitoring
 spec:
-  ports:
-  - name: http
-    port: 8080
-    targetPort: 8080
   selector:
-    service: user
+    matchLabels:
+      service: user
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s

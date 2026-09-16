@@ -37,7 +37,7 @@ resource "aws_iam_role" "github_actions_deploy" {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
           }
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:Ajithkumar1705@290228427/mavic-drone-shop-aws-eks-devops-pipeline@1346890326:ref:refs/heads/main"
+            "token.actions.githubusercontent.com:sub" = "repo:Ajithkumar1705/mavic-drone-shop-aws-eks-devops-pipeline:ref:refs/heads/main"
           }
         }
       }

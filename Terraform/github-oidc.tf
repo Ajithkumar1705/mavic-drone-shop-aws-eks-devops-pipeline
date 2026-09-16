@@ -17,9 +17,10 @@ resource "aws_iam_openid_connect_provider" "github" {
   thumbprint_list = [data.tls_certificate.github.certificates[0].sha1_fingerprint]
 }
 
-# The role GitHub Actions assumes — scoped tightly to your repo and,
-# deliberately, only the main branch. This is NOT a wildcard trust —
-# a workflow run from a fork or a different branch cannot assume this role.
+# The role GitHub Actions assumes — scoped tightly to this repo (still NOT
+# a wildcard trust: a workflow run from a fork, or from any other repo,
+# cannot assume this role) but not locked to a single branch, since cd.yml
+# is workflow_dispatch and the branch is picked manually on every run.
 resource "aws_iam_role" "github_actions_deploy" {
   name = "${var.cluster_name}-github-actions-deploy"
 
@@ -37,7 +38,7 @@ resource "aws_iam_role" "github_actions_deploy" {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
           }
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:Ajithkumar1705/mavic-drone-shop-aws-eks-devops-pipeline:ref:refs/heads/main"
+            "token.actions.githubusercontent.com:sub" = "repo:Ajithkumar1705/mavic-drone-shop-aws-eks-devops-pipeline:*"
           }
         }
       }

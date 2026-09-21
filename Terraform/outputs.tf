@@ -13,9 +13,14 @@ output "update_kubeconfig_command" {
   value       = "aws eks update-kubeconfig --name ${module.eks.cluster_name} --region ${var.aws_region}"
 }
 
-output "github_actions_role_arn" {
-  description = "Copy this into GitHub secrets as AWS_DEPLOY_ROLE_ARN"
-  value       = aws_iam_role.github_actions_deploy.arn
+output "github_actions_user_name" {
+  description = "IAM user name used by GitHub Actions"
+  value       = aws_iam_user.github_actions.name
+}
+
+output "github_actions_user_arn" {
+  description = "IAM user ARN used by GitHub Actions"
+  value       = aws_iam_user.github_actions.arn
 }
 
 output "ecr_repository_urls" {

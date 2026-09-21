@@ -67,12 +67,13 @@ variable "services" {
   ]
 }
 
-variable "github_repo" {
-  description = "GitHub repo allowed to assume the CI/CD IAM role, in 'owner/repo' format"
-  type        = string
-  default     = "Ajithkumar1705/mavic-drone-shop-aws-eks-devops-pipeline"
-}
-variable "grafana_admin_password" {
+variable "github_actions_user_name" {
+      description = "IAM user used by GitHub Actions through access-key authentication"
+      type        = string
+      default     = "mavic-drone-shop-github-actions"
+    }
+
+    variable "grafana_admin_password" {
   description = "Password for the Grafana admin user"
   type        = string
   default     = "grafana@123"

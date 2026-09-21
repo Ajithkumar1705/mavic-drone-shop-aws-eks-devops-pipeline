@@ -14,9 +14,8 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  # API_AND_CONFIG_MAP supports the newer EKS access-entry API (used in
-  # github-oidc.tf to grant the CI/CD role cluster access) alongside the
-  # classic aws-auth ConfigMap approach, for flexibility.
+  # API_AND_CONFIG_MAP supports EKS access entries for the CI/CD IAM user
+  # alongside the classic aws-auth ConfigMap approach.
   authentication_mode = "API_AND_CONFIG_MAP"
 
   # Without this, the identity running Terraform has AWS-level permission

@@ -1,5 +1,5 @@
 # Mavic Drone Shop
-
+test
 An end-to-end DevOps portfolio project: a microservices e-commerce app, containerized, provisioned on AWS EKS via Terraform, deployed through GitHub Actions CI/CD, and observed with Prometheus/Grafana/Loki.
 
 Built on top of an open-source microservices demo architecture (originally "Stan's Robot Shop"), fully restyled and rebranded here as a drone marketplace to demonstrate a realistic, multi-service DevOps pipeline — not a toy single-container app.

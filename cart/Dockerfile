@@ -1,11 +1,12 @@
-FROM node:22-bookworm-slim
+FROM node:22.14.0-bookworm-slim
 
 WORKDIR /app
 
 COPY package.json ./
-RUN npm install
+RUN npm install --omit=dev
 
-COPY . .
+COPY --chown=node:node . .
+USER node
 
 EXPOSE 8080
 

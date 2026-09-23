@@ -15,18 +15,23 @@ services:
     build:
       context: ./mysql
     image: mavicdroneshop/rs-mysql-db:1.0
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: cities
+      MYSQL_USER: shipping
+      MYSQL_PASSWORD: secret
     volumes:
       - mysql-data:/data
     networks:
       - mavic-drone-shop
 
   redis:
-    image: redis:7-alpine
+    image: redis:7.4.2-alpine
     networks:
       - mavic-drone-shop
 
   rabbitmq:
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:4.1.3-management-alpine
     networks:
       - mavic-drone-shop
 

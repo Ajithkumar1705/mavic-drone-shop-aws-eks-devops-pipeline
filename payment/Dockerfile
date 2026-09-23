@@ -3,27 +3,31 @@
 # out of the runtime image entirely rather than leaving gcc installed in
 # the final layer.
 #
-FROM python:3.12-slim-bookworm AS build
+FROM python:3.12.9-slim-bookworm AS build
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends gcc \
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./
-RUN pip install --no-cache-dir --user -r requirements.txt
+RUN python -m venv /opt/venv \
+    && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
 
 #
 # Run
 #
-FROM python:3.12-slim-bookworm
+FROM python:3.12.9-slim-bookworm
 
 WORKDIR /app
 
-COPY --from=build /root/.local /root/.local
-COPY . .
+RUN useradd --create-home --shell /usr/sbin/nologin appuser
+COPY --from=build /opt/venv /opt/venv
+COPY --chown=appuser:appuser . .
 
-ENV PATH=/root/.local/bin:$PATH
+ENV PATH=/opt/venv/bin:$PATH
+
+USER appuser
 
 EXPOSE 8080
 

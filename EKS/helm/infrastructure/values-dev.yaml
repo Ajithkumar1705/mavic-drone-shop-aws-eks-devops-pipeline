@@ -1,9 +1,9 @@
 mongodb:
   image:
-    repository: ""
-    tag: ""
+    repository: mongo
+    tag: "8.0.4"
 
 mysql:
   image:
-    repository: ""
-    tag: ""
+    repository: mysql
+    tag: "8.4.4"

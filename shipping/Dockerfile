@@ -1,7 +1,7 @@
 #
 # Build
 #
-FROM maven:3.9-amazoncorretto-11 AS build
+FROM maven:3.9.9-amazoncorretto-11 AS build
 
 WORKDIR /opt/shipping
 
@@ -13,7 +13,7 @@ RUN mvn package
 #
 # Run
 #
-FROM amazoncorretto:11
+FROM amazoncorretto:11.0.28-al2023
 
 EXPOSE 8080
 

@@ -40,10 +40,14 @@ App will be available at `http://localhost:8080`.
 
 To build from source instead of pulling prebuilt images:
 ```shell
-docker-compose build
-docker-compose up -d
+docker compose build
+docker compose up -d
 ```
 Edit `.env` first if you want to change the image registry/tag used for local builds.
+
+Container images use maintained, pinned baselines: Node.js 22.14, Python 3.12.9,
+Go 1.25, PHP 8.3.15, Java 11 (Corretto), Nginx 1.28, MongoDB 8.0.4,
+MySQL 8.4.4, Redis 7.4.2, and RabbitMQ 4.1.3.
 
 ### Load testing
 A [Locust](https://locust.io/) script is included under `load-gen/` for basic load testing against the running app.

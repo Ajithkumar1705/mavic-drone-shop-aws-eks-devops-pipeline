@@ -1,0 +1,6 @@
+apiVersion: v2
+name: mavic-drone-infrastructure
+description: Stateful and shared infrastructure for Mavic Drone Shop
+type: application
+version: 1.0.0
+appVersion: "1.0"

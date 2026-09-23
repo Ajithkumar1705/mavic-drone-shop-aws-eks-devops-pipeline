@@ -1,0 +1,10 @@
+service:
+  name: dispatch
+  port: 8080
+  targetPort: 8080
+
+# The existing project has a dispatch-specific service definition.
+# Keep its exact ports in the existing dispatch service manifest until
+# that manifest is migrated into this values file.
+serviceMonitor:
+  enabled: false

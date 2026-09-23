@@ -1,0 +1,32 @@
+service:
+  name: web
+  type: NodePort
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+    - name: metrics
+      port: 9113
+      targetPort: 9113
+
+extraContainers:
+  - name: nginx-exporter
+    image: nginx/nginx-prometheus-exporter:1.3
+    args:
+      - "-nginx.scrape-uri=http://localhost:8080/nginx_status"
+    ports:
+      - name: metrics
+        containerPort: 9113
+    resources:
+      requests:
+        cpu: 25m
+        memory: 16Mi
+      limits:
+        cpu: 50m
+        memory: 32Mi
+
+serviceMonitor:
+  enabled: true
+  port: metrics
+  path: /metrics
+  interval: 30s

@@ -1,0 +1,19 @@
+service:
+  name: ratings
+  port: 80
+  targetPort: 80
+
+readinessProbe:
+  httpGet:
+    path: /_health
+    port: 80
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 30
+  successThreshold: 1
+
+serviceMonitor:
+  enabled: true
+  port: http
+  path: /metrics
+  interval: 30s

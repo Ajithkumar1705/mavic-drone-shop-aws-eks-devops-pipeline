@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       service:
-        description: 'Service to deploy'
+        description: Service to deploy
         required: true
         type: choice
         options:
@@ -16,13 +16,21 @@ on:
           - ratings
           - dispatch
           - web
+      image_tag:
+        description: Git SHA/tag of the image already pushed to ECR
+        required: true
+        type: string
 
 permissions:
   contents: read
 
+env:
+  NAMESPACE: mavic-drone-shop
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -37,17 +45,45 @@ jobs:
       - name: Verify AWS identity
         run: aws sts get-caller-identity
 
-      - name: Log in to Amazon ECR
+      - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Update kubeconfig
-        run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
-
-      - name: Deploy via Helm
+      - name: Verify image exists
+        env:
+          SERVICE: ${{ inputs.service }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
         run: |
-          helm upgrade --install ${{ github.event.inputs.service }} ./EKS/helm \
-            -f ./EKS/helm/values-dev.yaml \
-            --set image.repo=${{ steps.login-ecr.outputs.registry }} \
-            --set image.version=${{ github.sha }} \
-            --namespace mavic-drone-shop
+          aws ecr describe-images             --repository-name "rs-${SERVICE}"             --image-ids imageTag="${IMAGE_TAG}"             --region "${AWS_REGION}"
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig             --name "${{ secrets.EKS_CLUSTER_NAME }}"             --region "${AWS_REGION}"
+
+      - name: Helm lint
+        run: |
+          helm lint EKS/helm/service             -f "EKS/helm/service/values/${{ inputs.service }}.yaml"
+
+      - name: Render Helm manifest
+        env:
+          SERVICE: ${{ inputs.service }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          helm template "${SERVICE}" EKS/helm/service             -f "EKS/helm/service/values/${SERVICE}.yaml"             --set service.name="${SERVICE}"             --set image.repository="${REGISTRY}/rs-${SERVICE}"             --set image.tag="${IMAGE_TAG}"
+
+      - name: Deploy only the selected service
+        env:
+          SERVICE: ${{ inputs.service }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          helm upgrade --install "${SERVICE}" EKS/helm/service             --namespace "${NAMESPACE}"             --create-namespace             -f "EKS/helm/service/values/${SERVICE}.yaml"             --set service.name="${SERVICE}"             --set image.repository="${REGISTRY}/rs-${SERVICE}"             --set image.tag="${IMAGE_TAG}"             --wait             --timeout 10m
+
+      - name: Verify deployment
+        env:
+          SERVICE: ${{ inputs.service }}
+        run: |
+          kubectl rollout status             deployment/"${SERVICE}"             -n "${NAMESPACE}"             --timeout=5m
+
+          kubectl get deployment "${SERVICE}"             -n "${NAMESPACE}"             -o wide

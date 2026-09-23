@@ -1,0 +1,9 @@
+mongodb:
+  image:
+    repository: ""
+    tag: ""
+
+mysql:
+  image:
+    repository: ""
+    tag: ""

@@ -1,0 +1,33 @@
+service:
+  name: app
+  port: 8080
+  targetPort: 8080
+  type: ClusterIP
+  ports: []
+
+replicaCount: 1
+
+image:
+  repository: ""
+  tag: ""
+  pullPolicy: Always
+
+podLabels: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 50Mi
+  limits:
+    cpu: 200m
+    memory: 100Mi
+
+readinessProbe: {}
+
+extraContainers: []
+
+serviceMonitor:
+  enabled: false
+  port: http
+  path: /metrics
+  interval: 30s

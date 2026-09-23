@@ -1,0 +1,10 @@
+service:
+  name: cart
+  port: 8080
+  targetPort: 8080
+
+serviceMonitor:
+  enabled: true
+  port: http
+  path: /metrics
+  interval: 30s

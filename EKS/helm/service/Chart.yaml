@@ -1,0 +1,6 @@
+apiVersion: v2
+name: mavic-drone-service
+description: Reusable Helm chart for one Mavic Drone Shop microservice
+type: application
+version: 1.0.0
+appVersion: "1.0"
